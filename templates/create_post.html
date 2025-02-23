@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{% if form.instance.pk %}Update Your Post{% else %}Create a New Post{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+    
+        <div class="mb-3">
+            <label for="id_caption" class="form-label">Caption</label>
+            {{ form.caption }}
+        </div>
+    
+        <div class="mb-3">
+            <label for="id_image" class="form-label">Upload Image</label>
+            {{ form.image }}
+    
+            {% if form.instance.image %}
+                <div class="mt-2">
+                    <img src="{{ form.instance.image.url }}" alt="Current Image" class="img-fluid rounded" width="200">
+                </div>
+            {% endif %}
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+</div>
+{% endblock %}

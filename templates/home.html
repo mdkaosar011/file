@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    
+    <div class="row">
+        <!-- Toggle Button for Sidebars (Visible on Small Screens) -->
+        <button class="btn btn-primary d-md-none mb-2" id="sidebarToggle">
+            <i class="bi bi-list"></i> Toggle Sidebar
+        </button>
+
+        <!-- Left Sidebar (User Profile) -->
+        <div class="col-md-3 bg-white p-3 rounded d-none d-md-block" id="leftSidebar">
+            <div class="text-center">
+                {% if user.profile.profile_pic %}
+                    <img src="{{ user.profile.profile_pic.url }}" class="rounded-circle" width="80" height="80" alt="Profile">
+                {% else %}
+                    <img src="/static/default_profile.jpg" class="rounded-circle" width="80" height="80" alt="Profile">
+                {% endif %}
+                <h5 class="mt-2 text-primary">{{ user.profile.f_name }} {{ user.profile.l_name }}</h5>
+                <p class="text-muted">{{ user.username }}</p>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-primary fw-bold" href="{% url 'home' %}"><i class="bi bi-house-door"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'my_post' %}"><i class="bi bi-plus-square"></i> My Posts</a>
+                </li>
+                {% comment %} <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'profile'  %}"><i class="bi bi-pencil-square"></i> Edit Profile</a>
+                </li> {% endcomment %}
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'profile'  %}"><i class="bi bi-person"></i> Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'change_password'  %}"><i class="bi bi-key"></i> Change Password</a>
+                </li>
+            </ul>
+            <a class="btn btn-primary w-100 mt-3" href='{% url "create_post" %}'>Create Post</a>
+        </div>
+{% block extra_content %}
+        <!-- Main Content (Post Section) -->
+        <div class="col-md-6">
+            {% for post in posts %}
+            <div class="card p-3 mb-4 shadow-sm">
+                <!-- Post Author Info -->
+                <div class="d-flex align-items-center">
+                    <img src="{{ post.author.profile.profile_pic.url }}" class="rounded-circle border" width="50" height="50" alt="{{ post.author.username }}">
+                    <div class="ms-2">
+                        <h6 class="mb-0 fw-bold">
+                            {% if post.author.profile %}
+                                {{ post.author.profile.f_name }} {{ post.author.profile.l_name }}
+                            {% else %}
+                            {{ post.author.username }}
+                            {% endif %}
+                        </h6>
+                        <small class="text-muted">{{ post.author.username }} • {{ post.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+
+                <!-- Post Content -->
+                <div class="mt-2">
+                    <p class="mb-1"> {{ post.caption }}</p>
+                </div>
+
+                <!-- Post Image -->
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="img-fluid mt-2 rounded" alt="Post Image">
+                {% endif %}
+
+                <!-- Like, Comment, Share Section -->
+                <div class="d-flex justify-content-between align-items-center mt-2 border-top pt-2">
+                    <button class="btn btn-outline-primary btn-sm"><i class="bi bi-hand-thumbs-up"></i> Like</button>
+                    <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-chat"></i> Comment</button>
+                    <button class="btn btn-outline-success btn-sm"><i class="bi bi-share"></i> Share</button>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section mt-3">
+                    {% for comment in post.comment_set.all %}
+                    <div class="d-flex align-items-start mb-2">
+                        <img src="{{ comment.author.profile.profile_pic.url }}" class="rounded-circle border" width="30" height="30" alt="{{ comment.author.username }}">
+                        <div class="ms-2 bg-light p-2 rounded">
+                            <p class="mb-0"><strong>{{ comment.author.username }}</strong></p>
+                            <p class="text-muted mb-0 small">{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small">No comments yet. Be the first to comment!</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Comment Input -->
+                <div class="mt-2 d-flex align-items-center">
+                    <img src="{{ user.profile.profile_pic.url }}" class="rounded-circle border" width="30" height="30" alt="Your Profile">
+                    <input type="text" class="form-control ms-2" placeholder="Write a comment...">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endblock  %}
+        <!-- Right Sidebar (User Suggestions) -->
+        <div class="col-md-3 bg-white p-3 rounded d-none d-md-block" id="rightSidebar">
+            <h5 class="text-primary">User Suggestions</h5>
+            <div class="mt-2">
+                {% for profile in profiles %}
+                <div class="d-flex align-items-center">
+                    {% if profile.profile_pic %}
+                        <img src="{{ profile.profile_pic.url }}" class="rounded-circle" width="30" height="30" alt="{{ profile.f_name }}">
+                    {% else %}
+                        <i class="bi bi-person-circle text-secondary me-2"></i>
+                    {% endif %}
+                    <div>
+                        <h6 class="mb-0">{{ profile.f_name }} {{ profile.l_name }}</h6>
+                        <small class="text-muted">{{ profile.contact_info }}</small>
+                    </div>
+                </div>
+                <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to Toggle Sidebars -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let sidebarToggle = document.getElementById("sidebarToggle");
+        let leftSidebar = document.getElementById("leftSidebar");
+        let rightSidebar = document.getElementById("rightSidebar");
+
+        sidebarToggle.addEventListener("click", function() {
+            leftSidebar.classList.toggle("d-none");
+            rightSidebar.classList.toggle("d-none");
+        });
+    });
+</script>
+
+{% endblock %}
