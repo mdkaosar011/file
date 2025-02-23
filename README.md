@@ -21,7 +21,7 @@ A basic social media application built with Django, allowing users to create, up
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/yourusername/yourproject.git
+   git clone git@github.com:mdkaosar011/file.git
    cd yourproject
    ```
 
